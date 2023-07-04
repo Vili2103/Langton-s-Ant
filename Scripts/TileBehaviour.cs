@@ -5,6 +5,7 @@ using UnityEngine;
 public class TileBehaviour : MonoBehaviour
 {
     public  string color = "white";
+    public static string ruleset = string.Empty;
    
 
     SpriteRenderer spriteRenderer;
@@ -14,6 +15,7 @@ public class TileBehaviour : MonoBehaviour
     }
     public void SteppedOn()
     {
+         
         if (color == "white")
         {
             color = "black";

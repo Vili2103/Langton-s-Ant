@@ -1,25 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine; 
 
 public class Movement : MonoBehaviour
 {
     [SerializeField]
+    [Range(0.0f, 1f)]
     private float speed = 1f;
-    private bool move = true;
-    private Vector3 targetPos;
-    public static int steps = 0;
+    private bool canMove = true, warp = true;
+    private Vector3 targetPos = new Vector3(5,5,-5f);
+    public static int steps = -1;
     [SerializeField]
     private GridGenerator gridGen;
+    
+
+    public void changeSpeed(float speed)
+    {
+        this.speed = speed;
+    }
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
         getDir(collision.gameObject);
        
     }
-
-    private void Start()
+    public void beginMoving()
     {
+        canMove = true;
+        targetPos = transform.position;
         Move(Vector2.up);
     }
 
@@ -48,23 +56,25 @@ public class Movement : MonoBehaviour
     public void Move(Vector2 dir)
     {
         Vector3 rotatedDir = Quaternion.Euler(0, 0, transform.eulerAngles.z) * dir;
-        targetPos = transform.position + rotatedDir;
-        targetPos.z = -5f;
-        if (targetPos.x < 0 || targetPos.y < 0 || targetPos.x >= gridGen.size || targetPos.y >= gridGen.size)
-            move = false;
+        Vector3 pos = transform.position + rotatedDir;
+        targetPos = new Vector3((float)System.Math.Round(pos.x, System.MidpointRounding.AwayFromZero), 
+            (float)System.Math.Round(pos.y, System.MidpointRounding.AwayFromZero), -5f);
+        //Debug.Log($" {targetPos.x}  {targetPos.y}, 0");
+        if (!GridGenerator.tilePositions.Contains(new Vector3(targetPos.x, targetPos.y, 0)) && warp == false)
+             canMove = false;
+           
         else steps++;
     }
 
-
     private void Update()
-    {
-        if (move) {
+    {       
+        if (canMove) {
             float dist = Vector3.Distance(transform.position, targetPos);
             if (dist == 0) // To prevent early turning.
                 transform.position = targetPos;
             else
                 transform.position = Vector3.MoveTowards(transform.position, targetPos, speed);
-        }   
+        }      
     
 
     }
